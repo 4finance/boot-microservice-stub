@@ -54,6 +54,7 @@ class BootMicroserviceStubApplication {
         println "\tstubName: $stubName"
         println "\tstubPortNumber: $stubPort"
         println "\tzooKeeperPort: $zookeeperPort"
+        println "\nTo check all stubs visit http://localhost:$stubPort/__admin"
     }
 
     private static void registerTestStubs() {
