@@ -11,7 +11,7 @@ version = '1.0'
 
 group = 'com.ofg'
 description = 'Boot Microservice Stub'
-version = '0.0.2'
+version = '0.1.0'
 
 buildscript {
     repositories {
