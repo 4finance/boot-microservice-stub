@@ -1,6 +1,4 @@
 apply plugin: 'groovy'
-apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'bintray'
@@ -16,18 +14,17 @@ version = '0.1.0'
 buildscript {
     repositories {
         mavenLocal()
-        maven { url 'http://jcenter.bintray.com' }
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-        classpath("com.ofg:uptodate-gradle-plugin:0.0.2")
+        classpath 'com.ofg:uptodate-gradle-plugin:0.0.3'
     }
 }
 
 repositories {
     mavenLocal()
-    maven { url 'http://jcenter.bintray.com' }
+    jcenter()
     mavenCentral()
 }
 
@@ -49,7 +46,7 @@ dependencies {
     }
 }
 
-build.dependsOn(['uptodate', 'fatJar'])
+build.dependsOn 'fatJar'
 
 publishing {
     publications {
@@ -58,10 +55,6 @@ publishing {
 
             artifact sourcesJar {
                 classifier "sources"
-            }
-
-            artifact javadocJar {
-                classifier "javadoc"
             }
 
             artifact fatJar {
@@ -77,11 +70,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
 task fatJar(type: Jar, dependsOn: sourcesJar) {
     classifier = "shadow"
 
@@ -93,8 +81,11 @@ task fatJar(type: Jar, dependsOn: sourcesJar) {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}
+
 artifacts {
     archives sourcesJar
-    archives javadocJar
     archives fatJar
 }
