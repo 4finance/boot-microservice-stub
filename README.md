@@ -1,9 +1,5 @@
-boot-microservice-stub
+Twitter Places Analyzer Microservice Stub
 ======================
 
-Common microservice stub to be used during development and local testing.
-
-Stubs are designed to be used together with boot-microservice and micro-deps projects from 4Finance GitHub account. 
-Together they allow to start development process of a specific microservice and launch all stubs that are required 
-by developed MS.
-  
+# Build status
+[![Build Status](https://travis-ci.org/microhackaton/twitter-places-analyzer-stub.svg?branch=master)](https://travis-ci.org/mickrohackaton/twitter-places-analyzer-stub) [![Coverage Status](http://img.shields.io/coveralls/mickrohackaton/twitter-places-analyzer-stub/master.svg)](https://coveralls.io/r/microhackaton/twitter-places-analyzer-stub)

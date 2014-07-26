@@ -8,7 +8,7 @@ sourceCompatibility = 1.7
 version = '1.0'
 
 group = 'com.ofg'
-description = 'Boot Microservice Stub'
+description = 'Twitter Places Analyzer Microservice Stub'
 version = '0.1.0'
 
 buildscript {
