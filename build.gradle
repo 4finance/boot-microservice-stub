@@ -65,11 +65,11 @@ publishing {
     }
 
     repositories {
-        credentials {
-            username 'deployment'
-            password 'deployment123'
-        }
         maven {
+            credentials {
+                username 'deployment'
+                password 'deployment123'
+            }
             url "http://nexus.microhackathon.pl/content/repositories/releases/"
         }
     }
