@@ -10,4 +10,3 @@ env:
 
 after_success:
 - ./gradlew build publish -PbuildNr=$TRAVIS_BUILD_NUMBER --info --stacktrace
-- ./gradlew test jacocoTestReport coveralls -Pcoverage
