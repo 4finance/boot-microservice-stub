@@ -5,11 +5,16 @@ apply plugin: 'bintray'
 apply plugin: 'uptodate'
 
 sourceCompatibility = 1.7
-version = '1.0'
 
-group = 'com.ofg'
+ext {
+    versionPrefix = "CD"
+    buildNrLoc = project.hasProperty('buildNr') ? "${buildNr}" : "000"
+    currentVersion = "${versionPrefix}-${buildNrLoc}"
+}
+
+group = 'pl.microhackaton'
 description = 'Twitter Places Analyzer Microservice Stub'
-version = '0.1.0'
+version = currentVersion
 
 buildscript {
     repositories {
@@ -19,7 +24,6 @@ buildscript {
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
         classpath 'com.ofg:uptodate-gradle-plugin:0.0.5'
-        if(project.hasProperty("coverage")) { classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:1.0.2' }
     }
 }
 
@@ -99,51 +103,4 @@ task wrapper(type: Wrapper) {
 artifacts {
     archives sourcesJar
     archives fatJar
-}
-
-if(project.hasProperty("coverage")) {
-    apply plugin: 'codenarc'
-    apply plugin: 'jacoco'
-    apply plugin: 'sonar-runner'
-    apply plugin: 'com.github.kt3k.coveralls'
-
-    jacoco {
-        toolVersion = "0.7.0.201403182114"
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled = true // coveralls plugin depends on xml format report
-            html.enabled = true
-        }
-    }
-
-    codenarc {
-        configFile = file('config/codenarc/rules.groovy')
-        maxPriority1Violations = 0
-        maxPriority2Violations = 6
-        maxPriority3Violations = 10
-        reportFormat = 'xml'
-        ignoreFailures = true
-    }
-
-    dependencies {
-        codenarc 'org.codenarc:CodeNarc:0.21'
-    }
-
-    test {
-        ignoreFailures = true
-        jacoco {
-            excludes = ['*Configuration']
-        }
-    }
-
-    sonarRunner {
-        sonarProperties {
-            //TODO: fill this
-            property "sonar.host.url", ""
-            property "sonar.junit.reportsPath", "build/test-results"
-        }
-    }
-
 }
