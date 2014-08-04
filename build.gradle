@@ -18,7 +18,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-        classpath 'com.ofg:uptodate-gradle-plugin:0.0.3'
+        classpath 'com.ofg:uptodate-gradle-plugin:0.0.5'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.6.0'
     }
 }
@@ -39,7 +39,7 @@ dependencies {
     compile "org.codehaus.groovy:groovy-all:$groovyVersion:indy"
     compile "org.apache.curator:curator-x-discovery:$curatorVersion"
     compile "org.apache.curator:curator-test:$curatorVersion"
-    compile 'com.github.tomakehurst:wiremock:1.46'
+    compile 'com.github.tomakehurst:wiremock:1.47'
     compile 'org.reflections:reflections:0.9.9-RC1'
 
     testCompile("org.spockframework:spock-core:$spockVersion") {

@@ -1,24 +1,24 @@
 package com.ofg
 
-import com.github.tomakehurst.wiremock.client.WireMock
-import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
-
-import java.lang.reflect.Method
-import com.ofg.infrastructure.Stub
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.ofg.infrastructure.Stub
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.RetryNTimes
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder
 import org.apache.curator.x.discovery.ServiceInstance
 import org.apache.curator.x.discovery.UriSpec
+import org.reflections.Reflections
+import org.reflections.scanners.MethodAnnotationsScanner
+
+import java.lang.reflect.Method
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 
 class BootMicroserviceStubApplication {
 
-    // TODO-ach: Left for JCommander implementation of command args parsing
-    private static final String STUB_DEFAULT_NAME = 'testDouble'
+    private static final String STUB_DEFAULT_NAME = 'com/ofg/twitter-places-analyzer'
     private static int STUB_DEFAULT_PORT = 19081
     private static final int ZOOKEEPER_DEFAULT_PORT = 2181
 
@@ -40,11 +40,10 @@ class BootMicroserviceStubApplication {
         }
         stubPort = args[2].toInteger()
         zookeeperPort = args[3].toInteger()
-
+        println "Starting stub with args zooKeeperBasePath: [$zooKeeperBasePath], stubName [$stubName], stubPort [$stubPort], zookeeperPort [$zookeeperPort]"
         registerInZookeeper(zooKeeperBasePath, stubName, stubPort, zookeeperPort)
         startWireMock(stubPort)
         registerTestStubs()
-
         printStartSummary(zooKeeperBasePath, stubName, stubPort, zookeeperPort)
     }
 
@@ -80,15 +79,15 @@ class BootMicroserviceStubApplication {
                 .port(stubPort)
                 .name(stubName)
                 .build()
-
         curatorFramework.start()
+        println 'Trying to connect to Zookeeper server'
         ServiceDiscoveryBuilder.builder(Void).basePath(zooKeeperBasePath).client(curatorFramework).thisInstance(serviceInstance).build().start()
+        println 'Connection to Zookeeper server was successful'
     }
 
     private static void startWireMock(int stubPort) {
         WireMockServer wireMockServer = new WireMockServer(wireMockConfig().port(stubPort));
-        wireMockServer.start ();
-
+        wireMockServer.start()
         WireMock.configureFor("localhost", stubPort);
     }
 
