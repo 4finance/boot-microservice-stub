@@ -19,7 +19,7 @@ buildscript {
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
         classpath 'com.ofg:uptodate-gradle-plugin:0.0.5'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.6.0'
+        if(project.hasProperty("coverage")) { classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:1.0.2' }
     }
 }
 
@@ -61,6 +61,16 @@ publishing {
             artifact fatJar {
                 classifier "shadow"
             }
+        }
+    }
+
+    repositories {
+        credentials {
+            username 'deployment'
+            password 'deployment123'
+        }
+        maven {
+            url "http://nexus.microhackathon.pl/content/repositories/releases/"
         }
     }
 }

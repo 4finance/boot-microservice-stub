@@ -3,8 +3,12 @@ jdk:
 - oraclejdk7
 - oraclejdk8
 
+script:
+- ./gradlew build --info --stacktrace
+
 env:
 - TERM=dumb
 
 after_success:
+- ./gradlew build uploadArchives -PbuildNr=$TRAVIS_BUILD_NUMBER --info --stacktrace
 - ./gradlew test jacocoTestReport coveralls -Pcoverage
