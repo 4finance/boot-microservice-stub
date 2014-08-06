@@ -1,5 +1,4 @@
 package com.ofg
-
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.ofg.infrastructure.Stub
@@ -17,17 +16,10 @@ import java.lang.reflect.Method
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 
 class BootMicroserviceStubApplication {
-
-    private static final String STUB_DEFAULT_NAME = 'com/ofg/twitter-places-analyzer'
-    private static int STUB_DEFAULT_PORT = 19081
-    private static final int ZOOKEEPER_DEFAULT_PORT = 2181
-
-
+    
     static final void main(String[] args) {
-        String stubName = STUB_DEFAULT_NAME
-        int stubPort = STUB_DEFAULT_PORT
-        int zookeeperPort = ZOOKEEPER_DEFAULT_PORT
-
+        String stubName
+        int stubPort, zookeeperPort
         if (args.size() != 4) {
             printUsage()
             throw new IllegalArgumentException("Invalid arguments")
@@ -48,12 +40,12 @@ class BootMicroserviceStubApplication {
     }
 
     private static void printStartSummary(String zooKeeperBasePath, String stubName, int stubPort, int zookeeperPort) {
-        println "Microservice stub started with config:"
-        println "\tzooKeeperBasePath: $zooKeeperBasePath"
-        println "\tstubName: $stubName"
-        println "\tstubPortNumber: $stubPort"
-        println "\tzooKeeperPort: $zookeeperPort"
-        println "\nTo check all stubs visit http://localhost:$stubPort/__admin"
+        println """Microservice stub started with config:
+                \tzooKeeperBasePath: $zooKeeperBasePath
+                \tstubName: $stubName
+                \tstubPortNumber: $stubPort
+                \tzooKeeperPort: $zookeeperPort
+                To check all stubs visit http://localhost:$stubPort/__admin"""
     }
 
     private static void registerTestStubs() {
@@ -63,13 +55,13 @@ class BootMicroserviceStubApplication {
     }
 
     private static void printUsage() {
-        println "USAGE:\n"
-        println "\tjava -jar boot-microservice-stub-VERSION-shadow.jar <zooKeeperBasePath> <stubName> <stubPortNumber> <zookeeperPortNumber>"
-        println "\t\tWHERE"
-        println "\t\tzooKeeperBasePath: base path in ZooKeeper where stub will be registered."
-        println "\t\tstubName: stub name used to register in ZooKeeper."
-        println "\t\tstubPortNumber: port number on which stub will be started."
-        println "\t\tzookeeperPortNumber: port number on which ZooKeeper is listening for stubs registration."
+        println """USAGE:
+        \tjava -jar twitter-places-analyzer-stub-VERSION-shadow.jar <zooKeeperBasePath> <stubName> <stubPortNumber> <zookeeperPortNumber>
+        \t\tWHERE
+        \t\tzooKeeperBasePath: base path in ZooKeeper where stub will be registered."
+        \t\tstubName: stub name used to register in ZooKeeper."
+        \t\tstubPortNumber: port number on which stub will be started."
+        \t\tzookeeperPortNumber: port number on which ZooKeeper is listening for stubs registration."""
     }
 
     private static void registerInZookeeper(String zooKeeperBasePath, String stubName, int stubPort, int zookeeperPort) {

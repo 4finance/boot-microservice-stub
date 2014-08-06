@@ -3,7 +3,7 @@ package com.ofg.infrastructure
 import groovy.transform.TypeChecked
 
 @TypeChecked
-class ColaMediaType {
+class TwitterPlacesAnalyzerMediaType {
 
     public static final String CONTENT_TYPE = "Content-Type"
 
