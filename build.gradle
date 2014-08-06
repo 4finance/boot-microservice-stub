@@ -12,7 +12,7 @@ ext {
     currentVersion = "${versionPrefix}-${buildNrLoc}"
 }
 
-group = 'pl.microhackaton'
+group = 'com.ofg'
 description = 'Twitter Places Analyzer Microservice Stub'
 version = currentVersion
 
@@ -69,10 +69,10 @@ publishing {
     repositories {
         maven {
             credentials {
-                username 'deployment'
-                password 'deployment123'
+                username ''
+                password ''
             }
-            url "http://nexus.microhackathon.pl/content/repositories/releases/"
+            url 'http://repo.4finance.net/nexus/content/repositories/Pipeline'
         }
     }
 }
