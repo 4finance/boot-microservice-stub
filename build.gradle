@@ -51,8 +51,6 @@ dependencies {
     }
 }
 
-build.dependsOn 'fatJar'
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -86,6 +84,12 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 task fatJar(type: Jar, dependsOn: sourcesJar) {
+    onlyIf {
+        project.gradle.startParameter.taskNames.any {
+            it in ['publish']
+        }
+    }
+    
     classifier = "shadow"
 
     from files(sourceSets.main.output.classesDir)
