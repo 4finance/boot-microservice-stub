@@ -1,8 +1,20 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:+'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:+'
+        classpath 'com.ofg:uptodate-gradle-plugin:+'
+    }
+}
+
 apply plugin: 'groovy'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: 'bintray'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'uptodate'
+apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.7
 
@@ -16,17 +28,6 @@ group = 'pl.microhackaton'
 description = 'Twitter Places Analyzer Microservice Stub'
 version = currentVersion
 
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-        classpath 'com.ofg:uptodate-gradle-plugin:0.0.5'
-    }
-}
-
 repositories {
     mavenLocal()
     jcenter()
@@ -34,7 +35,7 @@ repositories {
 }
 
 ext {
-    groovyVersion = '2.3.3'
+    groovyVersion = '2.3.6'
     spockVersion = '0.7-groovy-2.0'
     curatorVersion = '2.5.0'
 }
@@ -49,13 +50,26 @@ dependencies {
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
+
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}
+
+
+// TO EXTRACT TO micro-stub-infra plugin
+
+ext {
+    repoUsername = 'deployment'
+    repoPassword = 'deployment123'
+    repoUrl = "http://nexus.microhackathon.pl/content/repositories/releases/"
+    depsToExclude = [group: 'org.codehaus.groovy', name: 'groovy-all']
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-
             artifact sourcesJar {
                 classifier "sources"
             }
@@ -63,48 +77,61 @@ publishing {
             artifact fatJar {
                 classifier "shadow"
             }
+
+            artifact groovylessFatJar {
+                classifier "groovyless-shadow"
+            }
         }
     }
 
     repositories {
         maven {
             credentials {
-                username 'deployment'
-                password 'deployment123'
+                username repoUsername
+                password repoPassword
             }
-            url "http://nexus.microhackathon.pl/content/repositories/releases/"
+            url repoUrl
         }
     }
 }
 
+springBoot.backupSource = false
+jar.enabled = false
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task fatJar(type: Jar, dependsOn: sourcesJar) {
-    onlyIf {
-        project.gradle.startParameter.taskNames.any {
-            it in ['publish']
-        }
-    }
-    
-    classifier = "shadow"
-
-    from files(sourceSets.main.output.classesDir)
-    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
-
-    manifest {
-        attributes 'Main-Class': 'com.ofg.BootMicroserviceStubApplication'
-    }
+task fatJar(type: Jar) {
+    classifier = 'shadow'
+    from sourceSets.main.output
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+task groovylessFatJar(type: Jar) {
+    classifier = 'groovyless-shadow'
+    from sourceSets.main.output
 }
 
-artifacts {
-    archives sourcesJar
-    archives fatJar
+task fatJarBoot(type: BootRepackage, dependsOn: fatJar) {
+    withJarTask = fatJar
 }
+
+task groovylessSpringBoot(type: BootRepackage, dependsOn: groovylessFatJar) {
+    withJarTask = groovylessFatJar
+    customConfiguration = 'groovyless'
+}
+
+configurations {
+    groovyless.exclude depsToExclude
+}
+
+dependencies {
+    groovyless configurations.runtime
+}
+
+task bootJars(dependsOn: build)
+bootJars {
+    dependsOn = [sourcesJar, fatJarBoot, groovylessSpringBoot]
+}
+project.tasks.findAll {it.name.startsWith 'publish'}*.dependsOn(bootJars)
