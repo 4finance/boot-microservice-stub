@@ -18,15 +18,6 @@ apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.7
 
-ext {
-    versionPrefix = "CD"
-    buildNrLoc = project.hasProperty('buildNr') ? "${buildNr}" : "000"
-    currentVersion = "${versionPrefix}-${buildNrLoc}"
-}
-
-group = 'pl.microhackaton'
-description = 'Twitter Places Analyzer Microservice Stub'
-version = currentVersion
 
 repositories {
     mavenLocal()
@@ -35,10 +26,18 @@ repositories {
 }
 
 ext {
+    versionPrefix = "CD"
+    buildNrLoc = project.hasProperty('buildNr') ? "${buildNr}" : "000"
+    currentVersion = "${versionPrefix}-${buildNrLoc}"
+    
     groovyVersion = '2.3.6'
     spockVersion = '0.7-groovy-2.0'
     curatorVersion = '2.5.0'
 }
+
+group = 'pl.microhackaton'
+description = 'Twitter Places Analyzer Microservice Stub'
+version = currentVersion
 
 dependencies {
     compile "org.codehaus.groovy:groovy-all:$groovyVersion:indy"
@@ -56,7 +55,6 @@ dependencies {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
-
 
 // TO EXTRACT TO micro-stub-infra plugin
 
