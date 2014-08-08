@@ -4,7 +4,6 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:+'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:+'
         classpath 'com.ofg:uptodate-gradle-plugin:+'
     }
@@ -14,10 +13,8 @@ apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'uptodate'
-apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.7
-
 
 repositories {
     mavenLocal()
@@ -30,9 +27,11 @@ ext {
     buildNrLoc = project.hasProperty('buildNr') ? "${buildNr}" : "000"
     currentVersion = "${versionPrefix}-${buildNrLoc}"
 
+    mainClass = 'com.ofg.BootMicroserviceStubApplication'
+
+    curatorVersion = '2.6.0'
     groovyVersion = '2.3.6'
     spockVersion = '0.7-groovy-2.0'
-    curatorVersion = '2.5.0'
 }
 
 group = 'com.ofg'
@@ -40,34 +39,26 @@ description = 'Example of a microservice stub - basing on Twitter Places Analyze
 version = currentVersion
 
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:$groovyVersion:indy"
     compile "org.apache.curator:curator-x-discovery:$curatorVersion"
     compile "org.apache.curator:curator-test:$curatorVersion"
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion:indy"
+    compile 'org.reflections:reflections:0.9.8'
     compile 'com.github.tomakehurst:wiremock:1.47'
-    compile 'org.reflections:reflections:0.9.9-RC1'
 
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
-
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
 
-// TO EXTRACT TO micro-stub-infra plugin
-
-ext {
-    repoUsername = ''
-    repoPassword = ''
-    repoUrl = 'http://repo.4finance.net/nexus/content/repositories/Pipeline'
-    depsToExclude = [group: 'org.codehaus.groovy', name: 'groovy-all']
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java
+
             artifact sourcesJar {
                 classifier "sources"
             }
@@ -76,7 +67,7 @@ publishing {
                 classifier "shadow"
             }
 
-            artifact groovylessFatJar {
+            artifact fatJarWithoutGroovy {
                 classifier "groovyless-shadow"
             }
         }
@@ -85,51 +76,55 @@ publishing {
     repositories {
         maven {
             credentials {
-                username repoUsername
-                password repoPassword
+                username ''
+                password ''
             }
-            url repoUrl
+            url "http://repo.4finance.net/nexus/content/repositories/Pipeline"
         }
     }
 }
 
-springBoot.backupSource = false
-jar.enabled = false
 
-task sourcesJar(type: Jar) {
+task sourcesJar(type: Jar, dependsOn: build) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task fatJar(type: Jar) {
-    classifier = 'shadow'
-    from sourceSets.main.output
-}
+task fatJar(type: Jar, dependsOn: build) {
+    classifier = "shadow"
 
-task groovylessFatJar(type: Jar) {
-    classifier = 'groovyless-shadow'
-    from sourceSets.main.output
-}
+    from files(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
 
-task fatJarBoot(type: BootRepackage, dependsOn: fatJar) {
-    withJarTask = fatJar
-}
-
-task groovylessSpringBoot(type: BootRepackage, dependsOn: groovylessFatJar) {
-    withJarTask = groovylessFatJar
-    customConfiguration = 'groovyless'
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
 }
 
 configurations {
-    groovyless.exclude depsToExclude
+    groovyless
+
+    groovyless {
+        extendsFrom runtime
+        exclude([group: 'org.codehaus.groovy', name: 'groovy-all'])
+    }
 }
 
-dependencies {
-    groovyless configurations.runtime
+task fatJarWithoutGroovy(type: Jar, dependsOn: build) {
+    classifier "groovyless-shadow"
+
+    from files(sourceSets.main.output.classesDir)
+    from configurations.groovyless.asFileTree.files.collect {
+        zipTree(it)
+    }
+
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
 }
 
-task bootJars(dependsOn: build)
-bootJars {
-    dependsOn = [sourcesJar, fatJarBoot, groovylessSpringBoot]
+[sourcesJar, fatJar, fatJarWithoutGroovy]*.onlyIf { artifactTask ->
+    project.gradle.startParameter.taskNames.any {
+        it == artifactTask.name || project.tasks.findByName(it).group == 'publishing'
+    }
 }
-project.tasks.findAll {it.name.startsWith 'publish'}*.dependsOn(bootJars)
