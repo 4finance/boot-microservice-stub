@@ -7,6 +7,3 @@ script:
 
 env:
 - TERM=dumb
-
-after_success:
-- ./gradlew build publish -PbuildNr=$TRAVIS_BUILD_NUMBER --info --stacktrace
