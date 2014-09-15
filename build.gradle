@@ -5,14 +5,14 @@ buildscript {
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:+'
-        classpath 'com.ofg:uptodate-gradle-plugin:+'
+        classpath 'com.ofg:uptodate-gradle-plugin:1.1.0'
     }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'uptodate'
+apply plugin: 'com.ofg.uptodate'
 
 sourceCompatibility = 1.7
 
@@ -43,7 +43,7 @@ dependencies {
     compile "org.apache.curator:curator-test:$curatorVersion"
     compile "org.codehaus.groovy:groovy-all:$groovyVersion:indy"
     compile 'org.reflections:reflections:0.9.8'
-    compile 'com.github.tomakehurst:wiremock:1.47'
+    compile 'com.github.tomakehurst:wiremock:1.48'
 
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
